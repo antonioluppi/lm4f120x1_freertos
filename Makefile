@@ -1,6 +1,6 @@
 #******************************************************************************
 #
-# Makefile - Rules for building the FreeRTOS example.
+# Makefile - Rules for building the ek-lm4f120xl examples.
 #
 # Copyright (c) 2012 Texas Instruments Incorporated.  All rights reserved.
 # Software License Agreement
@@ -22,89 +22,40 @@
 #
 #******************************************************************************
 
+#DIRS=bitband        \
 #
-# Defines the part type that this project uses.
+# A list of the directories containing the examples.
 #
-PART=LM4F120H5QR
+
+DIRS=blinky         \
+     freertos_demo  \
+     gpio_jtag      \
+     hello          \
+     interrupts     \
+     mpu_fault      \
+     project0       \
+     qs-rgb         \
+     timers         \
+     uart_echo      \
+     udma_demo      \
+     usb_dev_bulk   \
+     usb_dev_serial
 
 #
-# Set the processor variant.
+# The default rule, which causes the examples to be built.
 #
-VARIANT=cm4f
-
-#
-# The base directory for StellarisWare.
-#
-ROOT=../../..
-
-#
-# Include the common make definitions.
-#
-include ${ROOT}/makedefs
-
-#
-# Where to find source files that do not live in this directory.
-#
-VPATH=freertos/FreeRTOS/Source/portable/GCC/ARM_CM4F
-VPATH+=freertos/FreeRTOS/Source/portable/MemMang/
-VPATH+=freertos/FreeRTOS/Source
-VPATH+=../drivers
-VPATH+=../../../utils
-
-#
-# Where to find header files that do not live in the source directory.
-#
-IPATH=.
-IPATH+=..
-IPATH+=../../..
-IPATH+=freertos/FreeRTOS/Source/portable/GCC/ARM_CM4F
-IPATH+=freertos/FreeRTOS
-IPATH+=freertos/FreeRTOS/Source/include
-IPATH+=../../../third_party
-
-#
-# The default rule, which causes the FreeRTOS example to be built.
-#
-all: ${COMPILER}
-all: ${COMPILER}/freertos_demo.axf
+all:
+	@for i in ${DIRS};              \
+	 do                             \
+	     make -C $${i} || exit $$?; \
+	 done
 
 #
 # The rule to clean out all the build products.
 #
 clean:
-	@rm -rf ${COMPILER} ${wildcard *~}
-
-#
-# The rule to create the target directory.
-#
-${COMPILER}:
-	@mkdir -p ${COMPILER}
-
-#
-# Rules for building the FreeRTOS example.
-#
-${COMPILER}/freertos_demo.axf: ${COMPILER}/buttons.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/freertos_demo.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/heap_2.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/led_task.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/list.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/port.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/queue.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/rgb.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/startup_${COMPILER}.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/switch_task.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/tasks.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/uartstdio.o
-${COMPILER}/freertos_demo.axf: ${COMPILER}/ustdlib.o
-${COMPILER}/freertos_demo.axf: ${ROOT}/driverlib/${COMPILER}-cm4f/libdriver-cm4f.a
-${COMPILER}/freertos_demo.axf: freertos_demo.ld
-SCATTERgcc_freertos_demo=freertos_demo.ld
-ENTRY_freertos_demo=ResetISR
-CFLAGSgcc=-DTARGET_IS_BLIZZARD_RA1
-
-#
-# Include the automatically generated dependency files.
-#
-ifneq (${MAKECMDGOALS},clean)
--include ${wildcard ${COMPILER}/*.d} __dummy__
-endif
+	@rm -rf ${wildcard *~} __dummy__
+	@-for i in ${DIRS};        \
+	  do                       \
+	      make -C $${i} clean; \
+	  done
